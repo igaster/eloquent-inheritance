@@ -1,0 +1,30 @@
+{
+    "name": "igaster/eloquent-inheritance",
+	"description": "Multiple table inheritance in Laravel Eloquent models",
+    "keywords": ["laravel-5.x", "table inheritance", "eloquent inheritance"],
+    "license": "MIT",
+    "homepage": "https://github.com/igaster/eloquent-inheritance.git",
+    "authors": [
+        {
+            "name": "Giannis Gasteratos",
+            "email": "igasteratos@gmail.com"
+        }
+    ],	
+    "require": {
+        "php": ">=5.4.0",
+        "illuminate/support": "5.*"
+    },
+    "require-dev": {
+        "illuminate/database": "~5.2",
+        "orchestra/testbench": "~3.0", 
+        "vlucas/phpdotenv": "~2.0",
+        "phpunit/phpunit": "~4.0"
+    },     
+    "autoload": {
+        "psr-4" : {
+            "igaster\\EloquentInheritance\\"        : "src/",
+            "igaster\\EloquentInheritance\\Tests\\" : "tests/"            
+        }
+    },
+    "minimum-stability": "stable"
+}
