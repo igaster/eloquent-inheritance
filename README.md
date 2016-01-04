@@ -6,7 +6,7 @@
 [![Codecov](https://img.shields.io/codecov/c/github/igaster/eloquent-inheritance.svg)](https://codecov.io/github/igaster/eloquent-inheritance)
 
 ## Description
-Eloquent Multiple Table Inheritance
+Eloquent Multiple Table Inheritance.
 
 ## Installation:
 
