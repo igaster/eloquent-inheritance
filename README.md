@@ -1,5 +1,12 @@
 ## Description
-Eloquent Inheritence
+[![Laravel](https://img.shields.io/badge/Laravel-5.x-orange.svg)](http://laravel.com)
+[![License](http://img.shields.io/badge/license-MIT-brightgreen.svg)](https://tldrlegal.com/license/mit-license)
+[![Downloads](https://img.shields.io/packagist/dt/igaster/eloquent-inheritance.svg)](https://packagist.org/packages/igaster/eloquent-inheritance)
+[![Build Status]https://img.shields.io/travis/igaster/eloquent-inheritance.svg)](https://travis-ci.org/igaster/eloquent-inheritance)
+[![Codecov](https://img.shields.io/codecov/c/github/igaster/eloquent-inheritance.svg)](https://codecov.io/github/igaster/eloquent-inheritance)
+
+## Description
+Eloquent Multiple Table Inheritance
 
 ## Installation:
 
@@ -76,16 +83,16 @@ $bar = Bar::create([
 
 $bar->setParent($foo)->save();
 
+$bar->a; // 1 parent property
+$bar->b; // 3 own property
+$bar->z; // 4 ovveride property - hides parent's
+
 $foo->a; // 1
 $foo->z; // 2
 
-$bar->a; // 1
-$bar->b; // 3
-$bar->z; // 4
-
 ```
 
-#### Shorthand Create :
+#### Shorthand Creation:
 
 ```php
 $bar = Bar::create([
