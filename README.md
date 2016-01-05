@@ -82,17 +82,18 @@ $bar->a;        // = 1 parent property
 $bar->b;        // = 2 own property
 
 $bar->a = 3;    // Delegetes to parent
-$foo->a;        // = 3
 $bar->save()    // will save $foo too
+
+//if you retrieve $foo from the Database:
+$foo->a;        // = 3
 ```
 
 #### Shorthand Creation:
+
 ```php
 $bar = Bar::create([
     'b' => 3,
-    'z' => 4,
 ])->createParent([
     'a' => 1,
-    'z' => 2,
 ]);
 ```
