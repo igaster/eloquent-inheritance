@@ -1,11 +1,8 @@
-## Description
 [![Laravel](https://img.shields.io/badge/Laravel-5.x-orange.svg)](http://laravel.com)
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg)](https://tldrlegal.com/license/mit-license)
 [![Downloads](https://img.shields.io/packagist/dt/igaster/eloquent-inheritance.svg)](https://packagist.org/packages/igaster/eloquent-inheritance)
 [![Build Status](https://img.shields.io/travis/igaster/eloquent-inheritance.svg)](https://travis-ci.org/igaster/eloquent-inheritance)
 [![Codecov](https://img.shields.io/codecov/c/github/igaster/eloquent-inheritance.svg)](https://codecov.io/github/igaster/eloquent-inheritance)
-
-
 
 ## Description
 Eloquent Multiple Table Inheritance.
@@ -29,16 +26,14 @@ and install with `composer update`
 // Model Foo is the parent model
 Schema::create('foo', function (Blueprint $table) {
     $table->increments('id');
-    $table->integer('a')->nullable();
-    $table->integer('z')->nullable();
+    $table->integer('a');
 });
 
 // Model Bar inherits Foo. Notice Foreign Key naming convention:
 Schema::create('bar', function (Blueprint $table) {
     $table->increments('id');
     $table->integer('foo_id')->nullable(); // FK: parentTableName_id
-    $table->integer('b')->nullable();
-    $table->integer('z')->nullable();
+    $table->integer('b');
 });
 
 // You may add more models that inherit Foo
