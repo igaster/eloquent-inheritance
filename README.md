@@ -91,7 +91,8 @@ $foo->a;        // = 3
 $bar->save()    // will save $foo too
 ```
 
-#### Shorthand Creation:```php
+#### Shorthand Creation:
+```php
 $bar = Bar::create([
     'b' => 3,
     'z' => 4,
