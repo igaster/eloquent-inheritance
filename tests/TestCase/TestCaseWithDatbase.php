@@ -8,25 +8,21 @@ class TestCaseWithDatbase extends TestCase
 {
 
     // -----------------------------------------------
-    //  Load .env Environment Variables
+    //  Testcase Initialize: Setup Database/Load .env
     // -----------------------------------------------
 
-    public static function setUpBeforeClass()
-    {
+    public static function setUpBeforeClass() {
+        parent::setUpBeforeClass();
+        
         if (file_exists(__DIR__.'/../.env')) {
             $dotenv = new Dotenv\Dotenv(__DIR__.'/../');
             $dotenv->load();
         }
     }
 
-    // -----------------------------------------------
-    //  Setup Database
-    // -----------------------------------------------
-
     protected $database;
 
-    public function setUp()
-    {
+    public function setUp(){
         parent::setUp();
 
         Eloquent::unguard();
@@ -38,24 +34,13 @@ class TestCaseWithDatbase extends TestCase
         $database->bootEloquent();
         $database->setAsGlobal();
         $this->database=$database;
-
-        // Add your migrations here. ie:
-
-        // $this->database->schema()->create('TableName', function ($table) {
-        //     $table->increments('id');
-        // });        
-    }
-
-    public function tearDown() {
-    	// Drop tables here. ie:
-        // $this->database->schema()->drop('TableName');
     }
 
     // -----------------------------------------------
 
     public function testDatabaseConnection()
     {
-    	$this->assertInstanceOf('Illuminate\Database\SQLiteConnection', $this->database->connection());
+        $this->assertInstanceOf('Illuminate\Database\SQLiteConnection', DB::connection());
     }
 
     // -----------------------------------------------

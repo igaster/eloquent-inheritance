@@ -1,94 +1,119 @@
 <?php namespace igaster\EloquentInheritance;
 
-use Illuminate\Database\Eloquent\Model;
-
 
 use igaster\EloquentInheritance\Tests\App\Foo as Foo;
 use igaster\EloquentInheritance\Tests\App\Bar as Bar;
+use Illuminate\Database\Capsule\Manager as DB;
 
 
-trait InheritsEloquent {
+class InheritsEloquent extends ModelComposer{
+	public static $parentClass = Foo::class;
+	public static $childClass = Bar::class;
 
+	public static $parentKeys = ['id','a'];
+	public static $childKeys = ['id','b','foo_id'];
+
+	public $query = null;
 	public $parent = null;
-	private $touchedParent = false;
+	public $child = null;
 
-	public static function getParentClass(){
-		return self::$inheritsEloquent;
+	private static function getParentTable(){
+		return (new static::$parentClass)->getTable();
 	}
 
-	public static function getInheritedKeys(){
-		return self::$inheritsKeys;
+	private static function getChildTable(){
+		return (new static::$childClass)->getTable();
 	}
 
-	// convention: parentTable_id
-	public function getForeignKey(){
-		$parentClass = self::getParentClass();
-        $parentTable =  ((new $parentClass)->getTable());
-		return $parentTable.'_id';
+	public static function query(){
+		$instance = new static;
+
+		$parent = self::getParentTable();
+		$child = self::getChildTable();
+
+		$instance->query =  DB::table($parent)
+					->leftJoin($child, "$parent.id", '=', "$child.foo_id");
+
+		return $instance;
 	}
 
-	public function getParent(){
-		if(!$this->parent){
-			$parentClass = self::getParentClass();
-			$foreignKey = $this->getForeignKey();
-			$this->parent = $parentClass::where('id', $this->$foreignKey)->first();
+	public function createModelsFromQueryResult($data = []){
+		$parent = self::getParentTable();
+		$child = self::getChildTable();
+		
+		$parentValues = [];
+
+		foreach ($data as $key => $value) {
+			if(strpos($key, $parent) === 0)
+				$parentValues[substr($key, strlen($parent)+1)] = $value;
+
+			if(strpos($key, $child) === 0)
+				$childValues[substr($key, strlen($child)+1)] = $value;
 		}
-		return $this->parent;
+
+		$this->parent = new self::$parentClass($parentValues);
+		$this->parent->exists = true;
+  		$this->parent->wasRecentlyCreated = true;
+
+		$this->child = new self::$childClass($childValues);
+		$this->child->exists = true;
+  		$this->child->wasRecentlyCreated = true;
 	}
 
-	public function hasParent(){
-		if ($this->parent) return true;
-		$parentClass = self::getParentClass();
-		$foreignKey = $this->getForeignKey();
-		return (!empty($this->$foreignKey));
+	public static function renameColumns(){
+		$parent = self::getParentTable();
+		$child = self::getChildTable();
+
+		$keys = [];
+		foreach (self::$parentKeys as $key)
+			$keys[] = "$parent.$key as $parent.$key";
+
+		foreach (self::$childKeys as $key)
+			$keys[] = "$child.$key as $child.$key";
+
+		return $keys;
 	}
 
-	public function setParent(Model $model){
-		$this->parent = $model;
-		$foreignKey = $this->getForeignKey();
-		$this->attributes[$foreignKey] = $model->id;
+	public function find($id){
+		$parent = self::getParentTable();
+		$child = self::getChildTable();
+		return $this->where("$parent.id", $id)->first();
+	}
+
+	public function first(){
+		$data = $this->query->first(self::renameColumns());
+		$this->createModelsFromQueryResult($data);
 		return $this;
 	}
 
-	public function getParentValue($key){
-		if (!$parent){
-			$parentClass = self::getParentClass();
-		}
-	}
+	// private static function call_method($object, $method, $arguments){
+	// 	if(count($arguments)==1){
+	// 		list($a1,$a2) = $arguments;
+	// 		return $object->$method($a1);
+	// 	}elseif(count($arguments)==2){
+	// 		list($a1,$a2) = $arguments;
+	// 		return $object->$method($a1,$a2);
+	// 	}elseif(count($arguments)==3){
+	// 		list($a1,$a2,$a3) = $arguments;
+	// 		return $object->$method($a1,$a2,$a3);
+	// 	}elseif(count($arguments)==4){
+	// 		list($a1,$a2,$a3,$a4) = $arguments;
+	// 		return $object->$method($a1,$a2,$a3,$a4);
+	// 	}elseif(count($arguments)==5){
+	// 		list($a1,$a2,$a3,$a4,$a5) = $arguments;
+	// 		return $object->$method($a1,$a2,$a3,$a4,$a5);
+	// 	}
+	// }
 
-	public function createParent(array $attributes = []){
-		$parentClass = self::getParentClass();
-		$parent = $parentClass::create($attributes);
-		$this->setParent($parent);
-		$this->save();
-		return $this;
-	}
+	// public function __call($name, $arguments) {
+	// 	$queryBuilderMethods=['where','join','leftJoin','first','get'];
 
-    public function save(array $options = []){
-    	parent::save($options);
-    	
-    	if($this->touchedParent){
-    		$this->getParent()->save();;
-    		$this->touchedParent = false;
-    	}
-    }
+	// 	if(in_array($name, $queryBuilderMethods)){
+	// 		static::call_method($this->query, $name, $arguments);
+	// 		return $this;
+	// 	}
 
-    public function __get($name){
-    	$parentClass = (new \ReflectionClass(self::getParentClass()))->getShortName();
-    	if(strcasecmp($name,$parentClass)==0)
-    		return $this->getParent();
+	// 	return parent::__call($name, $arguments);
+	// }
 
-    	if(in_array($name, self::getInheritedKeys())){
-    		return $this->getParent()->$name;
-    	}
-    	return parent::__get($name);
-    }
-
-    public function __set($name, $value){
-    	if(in_array($name, self::getInheritedKeys())){
-    		$this->touchedParent = true;
-    		return $this->getParent()->$name = $value;
-    	}
-    	return parent::__set($name, $value);
-    }
 }
