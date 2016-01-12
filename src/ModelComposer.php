@@ -2,16 +2,27 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-use igaster\EloquentInheritance\Tests\App\Foo as Foo;
-use igaster\EloquentInheritance\Tests\App\Bar as Bar;
-
 class ModelComposer {
 
 	public $models = [];
 
 	public function addModel(Model $model){
 		array_unshift($this->models,$model);
-		// $this->models[] = $model;
+	}
+
+	public function getModel($index){
+		$index = count($this->models)-$index-1;
+		return isset($this->models[$index]) ? $this->models[$index] : null;
+	}
+
+	public function setModel($index, $model){
+		$this->models[count($this->models)-$index-1] = $model;
+	}
+
+	public function save(){
+		foreach ($this->models as $model)
+			if(!empty($model))
+				$model->save();
 	}
 
 	public function getPropertyValue($name){
@@ -37,10 +48,14 @@ class ModelComposer {
 		throw new \Exception("ModelComposer: Property '$name' does not exists in any model", 1);		
 	}
 
-	public function callMethod($method, $args){
+	protected static function callObjectMethod($object, $method, $args){
+		return call_user_func_array([$object, $method], $args);
+	}
+
+	protected function callMethod($method, $args){
 		foreach ($this->models as $model) {
 			if(method_exists($model, $method)){
-	    		return call_user_func_array([$model, $method], $args);
+	    		return static::callObjectMethod($model, $method, $args);
 			}
 		}
 		throw new \Exception("ModelComposer: Method '$method' does not exists in any model", 1);		

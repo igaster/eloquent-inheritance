@@ -1,21 +1,53 @@
 <?php namespace igaster\EloquentInheritance;
 
-
-use igaster\EloquentInheritance\Tests\App\Foo as Foo;
-use igaster\EloquentInheritance\Tests\App\Bar as Bar;
 use Illuminate\Database\Capsule\Manager as DB;
-
+use Illuminate\Database\Eloquent\Collection;
 
 class InheritsEloquent extends ModelComposer{
-	public static $parentClass = Foo::class;
-	public static $childClass = Bar::class;
-
-	public static $parentKeys = ['id','a'];
-	public static $childKeys = ['id','b','foo_id'];
-
 	public $query = null;
 	public $parent = null;
 	public $child = null;
+
+	// -----------------------------------------------
+	// Factories
+	// -----------------------------------------------
+
+	public static function build(){
+		$instance = new static;
+
+		$parent = self::getParentTable();
+		$child = self::getChildTable();
+		$childFK = static::$childFK;
+
+		$instance->query =  DB::table($parent)
+					->leftJoin($child, "$parent.id", '=', "$child.$childFK");
+
+		return $instance;
+	}
+
+	public static function createFrom($parent, $child){
+		return static::build()->setHierarcy($parent, $child)->save();
+	}
+
+	public static function create($data){
+		$parent = new static::$parentClass;
+		$child  = new static::$childClass;
+
+		foreach ($data as $key => $value) {
+			if(in_array($key, static::$childKeys)){
+				$child->$key = $value;
+			} else {
+				$parent->$key = $value;				
+			}
+		}
+		$parent->save();
+		return static::createFrom($parent, $child);
+	}
+
+
+	// -----------------------------------------------
+	// Get Table Names
+	// -----------------------------------------------
 
 	private static function getParentTable(){
 		return (new static::$parentClass)->getTable();
@@ -25,19 +57,48 @@ class InheritsEloquent extends ModelComposer{
 		return (new static::$childClass)->getTable();
 	}
 
-	public static function query(){
-		$instance = new static;
+	// -----------------------------------------------
+	// Get Models
+	// -----------------------------------------------
 
-		$parent = self::getParentTable();
-		$child = self::getChildTable();
-
-		$instance->query =  DB::table($parent)
-					->leftJoin($child, "$parent.id", '=', "$child.foo_id");
-
-		return $instance;
+	public function parent(){
+		return isset($this->models[1]) ? $this->models[1] : null;
 	}
 
-	public function createModelsFromQueryResult($data = []){
+	public function child(){
+		return isset($this->models[0]) ? $this->models[0] : null;
+	}
+
+	// -----------------------------------------------
+	// Set Models
+	// -----------------------------------------------
+
+	public function setHierarcy($parent, $child){
+		$childFK = static::$childFK;
+
+		$this->models[1] = $parent;
+		$this->models[0] = $child;
+
+		if (!empty($parent) && !empty($child)) {
+			$child->$childFK = $parent->id;
+		}
+
+		return $this;
+	}
+
+	public function setParent($parent){
+		return $this->setHierarcy($parent, $this->child());
+	}
+
+	public function setChild($child){
+		return $this->setHierarcy($this->parent(), $child);
+	}
+
+	// -----------------------------------------------
+	// Break / Compose models
+	// -----------------------------------------------
+
+	public function createModelsFromQuery($data = []){
 		$parent = self::getParentTable();
 		$child = self::getChildTable();
 		
@@ -51,13 +112,18 @@ class InheritsEloquent extends ModelComposer{
 				$childValues[substr($key, strlen($child)+1)] = $value;
 		}
 
-		$this->parent = new self::$parentClass($parentValues);
-		$this->parent->exists = true;
-  		$this->parent->wasRecentlyCreated = true;
+		$parent = new static::$parentClass($parentValues);
+		$parent->exists = true;
+  		$parent->wasRecentlyCreated = true;
 
-		$this->child = new self::$childClass($childValues);
-		$this->child->exists = true;
-  		$this->child->wasRecentlyCreated = true;
+		$child = new static::$childClass($childValues);
+		$child->exists = true;
+  		$child->wasRecentlyCreated = true;
+
+  		$this->addModel($parent);
+  		$this->addModel($child);
+
+  		return $this;
 	}
 
 	public static function renameColumns(){
@@ -65,55 +131,68 @@ class InheritsEloquent extends ModelComposer{
 		$child = self::getChildTable();
 
 		$keys = [];
-		foreach (self::$parentKeys as $key)
+		foreach (static::$parentKeys as $key)
 			$keys[] = "$parent.$key as $parent.$key";
 
-		foreach (self::$childKeys as $key)
+		foreach (static::$childKeys as $key)
 			$keys[] = "$child.$key as $child.$key";
 
 		return $keys;
 	}
 
-	public function find($id){
+	// -----------------------------------------------
+	// Redifine some queryBuilder methods
+	// -----------------------------------------------
+
+	public function findParent($id){
 		$parent = self::getParentTable();
-		$child = self::getChildTable();
 		return $this->where("$parent.id", $id)->first();
+	}
+
+	public function findChild($id){
+		$child = self::getChildTable();
+		return $this->where("$child.id", $id)->first();
+	}
+
+	public function find($id){
+		return $this->findChild($id);
 	}
 
 	public function first(){
 		$data = $this->query->first(self::renameColumns());
-		$this->createModelsFromQueryResult($data);
+		if(is_null($data)) return null;
+
+		$this->createModelsFromQuery($data);
 		return $this;
 	}
 
-	// private static function call_method($object, $method, $arguments){
-	// 	if(count($arguments)==1){
-	// 		list($a1,$a2) = $arguments;
-	// 		return $object->$method($a1);
-	// 	}elseif(count($arguments)==2){
-	// 		list($a1,$a2) = $arguments;
-	// 		return $object->$method($a1,$a2);
-	// 	}elseif(count($arguments)==3){
-	// 		list($a1,$a2,$a3) = $arguments;
-	// 		return $object->$method($a1,$a2,$a3);
-	// 	}elseif(count($arguments)==4){
-	// 		list($a1,$a2,$a3,$a4) = $arguments;
-	// 		return $object->$method($a1,$a2,$a3,$a4);
-	// 	}elseif(count($arguments)==5){
-	// 		list($a1,$a2,$a3,$a4,$a5) = $arguments;
-	// 		return $object->$method($a1,$a2,$a3,$a4,$a5);
-	// 	}
-	// }
+	public function get(){
+		$data = $this->query->get(self::renameColumns());
+		
+		$items = [];
+		foreach ($data as $item) {
+			if(!is_null($item)){
+				$items[] = static::build()->createModelsFromQuery($item);
+			} 
+		}
+        return new Collection($items);
+	}
 
-	// public function __call($name, $arguments) {
-	// 	$queryBuilderMethods=['where','join','leftJoin','first','get'];
+	public function save(){
+		parent::save();
+		return $this;
+	}
 
-	// 	if(in_array($name, $queryBuilderMethods)){
-	// 		static::call_method($this->query, $name, $arguments);
-	// 		return $this;
-	// 	}
+	// -----------------------------------------------
+	// Route queryBuilder methods to internal Builder
+	// -----------------------------------------------
 
-	// 	return parent::__call($name, $arguments);
-	// }
+	public function __call($name, $arguments) {
+		if(method_exists($this->query, $name)){
+			static::callObjectMethod($this->query, $name, $arguments);
+			return $this;
+		}
 
+		return parent::__call($name, $arguments);
+	}
 }

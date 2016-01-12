@@ -63,12 +63,6 @@ class ModelComposerTest extends TestCaseWithDatbase
         $this->composer->addModel($this->bar);
     }
 
-
-    public function reloadModel($model){
-        $className = get_class($model);
-        return $className::find($model->id);
-    }
-
     // -----------------------------------------------
     //  Tests
     // -----------------------------------------------
@@ -136,6 +130,26 @@ class ModelComposerTest extends TestCaseWithDatbase
     public function test_invalid_method_call(){
         $this->setExpectedException(\Exception::class);
         $this->assertEquals(3, $this->composer->invalidMethod());
+    }
+
+    public function test_get_model(){
+        $this->assertInstanceOf(Foo::class, $this->composer->getModel(0));
+        $this->assertInstanceOf(Bar::class, $this->composer->getModel(1));
+    }
+
+    public function test_save(){
+        $this->composer->a = 11;
+        $this->composer->b = 12;
+        $this->composer->z = 13;
+        $this->composer->save();
+
+        $foo = $this->reloadModel($this->foo);
+        $bar = $this->reloadModel($this->bar);
+
+        $this->assertEquals(11, $foo->a);
+        $this->assertEquals(12, $bar->b);
+        $this->assertEquals(13, $bar->z);
+        $this->assertEquals(2,  $foo->z);
     }
 
 }

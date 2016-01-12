@@ -37,6 +37,16 @@ class TestCaseWithDatbase extends TestCase
     }
 
     // -----------------------------------------------
+    //  Helpers
+    // -----------------------------------------------
+
+    public function reloadModel(&$model){
+        $className = get_class($model);
+        $model = $className::find($model->id);
+        return $model;
+    }
+
+    // -----------------------------------------------
 
     public function testDatabaseConnection()
     {
