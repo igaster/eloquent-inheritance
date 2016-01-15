@@ -5,7 +5,7 @@
 [![Codecov](https://img.shields.io/codecov/c/github/igaster/eloquent-inheritance.svg)](https://codecov.io/github/igaster/eloquent-inheritance)
 
 ## Description
-Eloquent Multiple Table Inheritance. Use a one-to-one (or One to Many) relation between a parent & child Tables to simulate inheritance between Models.
+Eloquent Multiple Table Inheritance: Use a One-To-One (or One-To-Many) relation between a parent & child Tables to simulate inheritance Model inheritance.
 
 ## Installation:
 

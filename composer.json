@@ -1,7 +1,7 @@
 {
     "name": "igaster/eloquent-inheritance",
-	"description": "Multiple table inheritance in Laravel Eloquent models",
-    "keywords": ["laravel-5.x", "table inheritance", "eloquent inheritance"],
+	"description": "Use a One-To-One (or One-To-Many) relation between a parent & child Tables to simulate inheritance Model inheritance",
+    "keywords": ["laravel-5.x", "table inheritance", "eloquent inheritance", "multiple table inheritance"],
     "license": "MIT",
     "homepage": "https://github.com/igaster/eloquent-inheritance.git",
     "authors": [
