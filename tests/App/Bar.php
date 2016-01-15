@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 class Bar extends Eloquent
 {
     protected $table = 'bar';
+    protected $guarded = [];
 	public $timestamps = false;
 }

@@ -1,6 +1,5 @@
 <?php namespace igaster\EloquentInheritance\Tests\TestCase;
 
-use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Orchestra\Testbench\TestCase;
 
@@ -20,21 +19,12 @@ class TestCaseWithDatbase extends TestCase
         }
     }
 
-    protected $database;
 
-    public function setUp(){
-        parent::setUp();
-
-        Eloquent::unguard();
-        $database = new DB;
-        $database->addConnection([
-            'driver' => 'sqlite',
-            'database' => ':memory:',
-        ]);
-        $database->bootEloquent();
-        $database->setAsGlobal();
-        $this->database=$database;
+    protected function getEnvironmentSetUp($app)
+    {
+        $app['config']->set('database.default', 'testing'); // sqlite , memory
     }
+
 
     // -----------------------------------------------
     //  Helpers
@@ -50,7 +40,7 @@ class TestCaseWithDatbase extends TestCase
 
     public function testDatabaseConnection()
     {
-        $this->assertInstanceOf('Illuminate\Database\SQLiteConnection', DB::connection());
+        $this->assertInstanceOf('Illuminate\Database\SQLiteConnection', \DB::connection());
     }
 
     // -----------------------------------------------

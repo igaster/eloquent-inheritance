@@ -1,6 +1,6 @@
 <?php namespace igaster\EloquentInheritance;
 
-use Illuminate\Database\Capsule\Manager as DB;
+// use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Database\Eloquent\Collection;
 
 class InheritsEloquent extends ModelComposer{
@@ -17,7 +17,7 @@ class InheritsEloquent extends ModelComposer{
 		$child = self::getChildTable();
 		$childFK = static::$childFK;
 
-		$instance->query =  DB::table($parent)
+		$instance->query =  \DB::table($parent)
 					->leftJoin($child, "$parent.id", '=', "$child.$childFK");
 
 		return $instance;
@@ -41,7 +41,6 @@ class InheritsEloquent extends ModelComposer{
 		$parent->save();
 		return static::createFrom($parent, $child);
 	}
-
 
 	// -----------------------------------------------
 	// Get Table Names

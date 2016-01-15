@@ -17,13 +17,12 @@ class ModelComposerTest extends TestCaseWithDatbase
     {
         parent::setUp();
 
-        // -- Set  migrations
-        $this->database->schema()->create('foo', function ($table) {
+        \Schema::create('foo', function ($table) {
             $table->increments('id');
             $table->integer('a')->nullable();
             $table->integer('z')->nullable();
         });
-        $this->database->schema()->create('bar', function ($table) {
+        \Schema::create('bar', function ($table) {
             $table->increments('id');
             $table->integer('b')->nullable();
             $table->integer('z')->nullable();
@@ -33,8 +32,8 @@ class ModelComposerTest extends TestCaseWithDatbase
     }
 
     public function _tearDown() {
-        $this->database->schema()->drop('foo');
-        $this->database->schema()->drop('bar');
+        \Schema::create('foo');
+        \Schema::create('bar');
         parent::teadDown();
     }
 

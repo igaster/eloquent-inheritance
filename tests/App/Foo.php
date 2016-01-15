@@ -5,7 +5,9 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 class Foo extends Eloquent
 {
     protected $table = 'foo';
+    protected $guarded = [];
 	public $timestamps = false;
+
 
 	// Test Properties
 	

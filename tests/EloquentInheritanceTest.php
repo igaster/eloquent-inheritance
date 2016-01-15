@@ -19,11 +19,11 @@ class EloquentInheritanceTest extends TestCaseWithDatbase{
         parent::setUp();
 
         // -- Set  migrations
-        $this->database->schema()->create('foo', function ($table) {
+        \Schema::create('foo', function ($table) {
             $table->increments('id');
             $table->integer('a')->nullable();
         });
-        $this->database->schema()->create('bar', function ($table) {
+        \Schema::create('bar', function ($table) {
             $table->increments('id');
             $table->integer('foo_id')->nullable();
             $table->integer('b')->nullable();
@@ -33,8 +33,8 @@ class EloquentInheritanceTest extends TestCaseWithDatbase{
     }
 
     public function _tearDown() {
-        $this->database->schema()->drop('foo');
-        $this->database->schema()->drop('bar');
+        \Schema::drop('foo');
+        \Schema::drop('bar');
         parent::teadDown();
     }
 
@@ -245,7 +245,6 @@ class EloquentInheritanceTest extends TestCaseWithDatbase{
         $this->assertEquals(2000, $fooBar->b);
         $this->assertEquals(99, $fooBar->child()->id);        
         $this->assertEquals($fooBar->parent()->id, $fooBar->child()->foo_id);
-
     }
 
 }

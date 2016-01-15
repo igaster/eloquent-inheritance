@@ -43,7 +43,6 @@ class ModelComposer {
         
 		}
 
-
 		throw new \Exception("ModelComposer: Property '$name' does not exists in any model", 1);
 	}
 
