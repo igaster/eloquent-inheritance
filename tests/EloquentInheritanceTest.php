@@ -148,7 +148,7 @@ class EloquentInheritanceTest extends TestCaseWithDatbase{
         $this->assertEquals(20, $fooBar->b);
     }
 
-    public function test_query_get(){
+    public function _test_query_get(){
         $collection = BarExtendsFoo::build()->get();
         $this->assertInstanceOf(Illuminate\Database\Eloquent\Collection::class, $collection);
         $this->assertEquals(2, $collection->count());
@@ -162,7 +162,7 @@ class EloquentInheritanceTest extends TestCaseWithDatbase{
     }
 
 
-    public function test_query_not_found(){
+    public function _test_query_not_found(){
         $fooBar = BarExtendsFoo::build()->where('a', 100)->first();
         $this->assertNull($fooBar);
 

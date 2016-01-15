@@ -2,12 +2,13 @@
 
 // use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class customBuilder {
 	protected $query;
 	protected $model;
 	
-	public function __construct(Builder $query, InheritsEloquent $model){
+	public function __construct(InheritsEloquent $model, Builder $query){
 		$this->query = $query;
 		$this->model = $model;
 	}
@@ -35,7 +36,7 @@ class customBuilder {
 		if(is_null($data)) return null;
 
 		$this->createModelsFromQuery($data);
-		return $this;
+		return $this->model;
 	}
 
 	public function get(){
@@ -52,12 +53,12 @@ class customBuilder {
 
 	public function save(){
 		parent::save();
-		return $this;
+		return $this->model;
 	}
 
 
 	// -----------------------------------------------
-	// Route queryBuilder methods to internal Builder
+	// Route queryBuilder methods to Builder | Parent ModelComposer
 	// -----------------------------------------------
 
 	protected static function callObjectMethod($object, $method, $args){
@@ -72,6 +73,7 @@ class customBuilder {
 		if(method_exists($this->query, $method)){
 			return static::callObjectMethod($this->query, $method, $arguments);
 		}
+
 
 		if(method_exists($this->model, $method)){
 			return static::callObjectMethod($this->model, $method, $arguments);

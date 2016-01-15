@@ -45,55 +45,54 @@ Schema::create('bar', function (Blueprint $table) {
 class Foo extends Eloquent
 {
 	// ...
+    public function fooMethod(){}
 }
 
 class Bar extends Eloquent
 {
-	use \igaster\EloquentInheritance\InheritsEloquent;
-	protected static $inheritsEloquent 	= Foo::class;
-	protected static $inheritsKeys 		= ['a']; // Only these keys will be inherited
-
 	// ...
+    public function barMethod(){}
+}
+
+class BarExtendsFoo extends igaster\EloquentInheritance\InheritsEloquent{
+    public static $parentClass = Foo::class;
+    public static $childClass  = Bar::class;
+
+    public static $parentKeys = ['id','a'];
+    public static $childKeys  = ['id','b','foo_id'];
+
+    public static $childFK  = 'foo_id';
+
+    // Add your functions / variables...
+    public function newMethod(){}
 }
 ```
 
-#### API reference:
-
-```php
-$bar->setParent($foo)->save(); // Set parent object
-$bar->getParent() // Get instance of parent
-$bar->foo 		  // Same as above! (Access as with parent class name)
-```
 
 ####  Example
 
 ```php
-$foo = Foo::create([
+// Create a composite Model:
+$fooBar = BarExtendsFoo::create([
     'a' => 1,
-]);
-
-$bar = Bar::create([
     'b' => 2,
 ]);
 
-$bar->setParent($foo)->save();
 
-$bar->a;        // = 1 parent property
-$bar->b;        // = 2 own property
+// Access Attributes
+$fooBar->a; // = 1 (from Foo model)
+$fooBar->b; // = 2 (from Bar model)
 
-$bar->a = 3;    // Delegetes to parent
-$bar->save()    // will save $foo too
+// Call Methods
+$fooBar->fooMethod(); // from Foo Model
+$fooBar->barMethod(); // from Bar Model
+$fooBar->newMethod(); // from self
 
-//if you retrieve $foo from the Database:
-$foo->a;        // = 3
-```
+// Load: Start your queries with BarExtendsFoo::build()
+$fooBar = BarExtendsFoo::build()->find(1);
+$fooBar = BarExtendsFoo::build()->where('a',10)->first();
+$fooBar = BarExtendsFoo::build()->get(); // Collection of BarExtendsFoo 
 
-#### Shorthand Creation:
-
-```php
-$bar = Bar::create([
-    'b' => 3,
-])->createParent([
-    'a' => 1,
-]);
+$fooBar->save();    // Saves Foo + Bar
+$fooBar->delete();  // Deletes Foo + Bar
 ```
