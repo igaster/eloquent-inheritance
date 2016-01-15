@@ -5,8 +5,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class InheritsEloquent extends ModelComposer{
 	public $query = null;
-	public $parent = null;
-	public $child = null;
 
 	// -----------------------------------------------
 	// Factories

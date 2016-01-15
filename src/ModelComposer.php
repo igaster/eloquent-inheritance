@@ -25,13 +25,22 @@ class ModelComposer {
 				$model->save();
 	}
 
+	public function delete(){
+		foreach ($this->models as $model)
+			if(!empty($model))
+				$model->delete();
+	}
+
 	public function getPropertyValue($name){
 		foreach ($this->models as $model) {
+
 			if(isset($model->$name))
 				return($model->$name);
 
-			if (method_exists($model, $method = 'get'.studly_case($name).'Attribute'))
-	    		return call_user_func_array([$model, $method], null);
+			// Methods as Attributes
+			if($result = $model->getRelationValue($name))
+				return $result;
+        
 		}
 
 
@@ -61,6 +70,16 @@ class ModelComposer {
 		throw new \Exception("ModelComposer: Method '$method' does not exists in any model", 1);		
 	}
 
+	protected function propertyExists($name){
+		foreach ($this->models as $model) {
+			if(isset($model->$name)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+
 	public function __call($method, $args){
 		return $this->callMethod($method, $args);
 	}
@@ -72,6 +91,11 @@ class ModelComposer {
 	public function __set($name, $value){
 		return $this->setPropertyValue($name, $value);
 	}
+
+    public function __isset($name) {
+		return $this->propertyExists($name);
+    }
+
 
 
 }

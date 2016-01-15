@@ -7,12 +7,23 @@ class Foo extends Eloquent
     protected $table = 'foo';
 	public $timestamps = false;
 
+	// Test Properties
+	
 	public $foo_property = 5;
+
+	// Test methods
 
 	public function fooMethod($a, $b){
 		return 1+2;
 	}
 
+	// Test Functions as Attributes
+
+	public function otherModel(){
+		return $this->belongsTo(Bar::class, 'id', 'id');
+	}
+
+	// Test mutators
 
 	private $mutatedValue = "foo";
 

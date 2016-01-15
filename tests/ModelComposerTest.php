@@ -127,6 +127,10 @@ class ModelComposerTest extends TestCaseWithDatbase
         $this->assertEquals('test', $this->foo->mutated);
     }
 
+    public function test_get_method_as_property(){
+        $this->assertInstanceOf(Bar::class, $this->composer->otherModel);
+    }
+
     public function test_invalid_method_call(){
         $this->setExpectedException(\Exception::class);
         $this->assertEquals(3, $this->composer->invalidMethod());
@@ -136,6 +140,18 @@ class ModelComposerTest extends TestCaseWithDatbase
         $this->assertInstanceOf(Foo::class, $this->composer->getModel(0));
         $this->assertInstanceOf(Bar::class, $this->composer->getModel(1));
     }
+
+    public function test_isset(){
+        $this->assertTrue(isset($this->composer->a));
+        $this->assertTrue(isset($this->composer->b));
+        $this->assertTrue(isset($this->composer->z));
+
+        $this->assertTrue(isset($this->composer->mutated));
+
+        $this->assertFalse(isset($this->composer->invalid));
+        $this->assertFalse(isset($this->composer->otherModel));
+    }
+
 
     public function test_save(){
         $this->composer->a = 11;
