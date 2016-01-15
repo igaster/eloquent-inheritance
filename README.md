@@ -5,7 +5,7 @@
 [![Codecov](https://img.shields.io/codecov/c/github/igaster/eloquent-inheritance.svg)](https://codecov.io/github/igaster/eloquent-inheritance)
 
 ## Description
-Eloquent Multiple Table Inheritance.
+Eloquent Multiple Table Inheritance. Use a one-to-one (or One to Many) relation between a parent & child Tables to simulate inheritance between Models.
 
 ## Installation:
 
@@ -29,10 +29,10 @@ Schema::create('foo', function (Blueprint $table) {
     $table->integer('a');
 });
 
-// Model Bar inherits Foo. Notice Foreign Key naming convention:
+// Model Bar inherits Foo.
 Schema::create('bar', function (Blueprint $table) {
     $table->increments('id');
-    $table->integer('foo_id')->nullable(); // FK: parentTableName_id
+    $table->integer('foo_id')->nullable();
     $table->integer('b');
 });
 
@@ -77,7 +77,6 @@ $fooBar = BarExtendsFoo::create([
     'a' => 1,
     'b' => 2,
 ]);
-
 
 // Access Attributes
 $fooBar->a; // = 1 (from Foo model)
