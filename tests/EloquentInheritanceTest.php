@@ -86,11 +86,11 @@ class EloquentInheritanceTest extends TestCaseWithDatbase{
 
         $this->assertEquals(1, $fooBar->parent()->a);
         $this->assertEquals(2, $fooBar->child()->b);
-
         $this->assertEquals(1, $fooBar->a);
         $this->assertEquals(2, $fooBar->b);
 
         $fooBar = BarExtendsFoo::build()->findParent(5);
+
         $this->assertEquals(10, $fooBar->a);
         $this->assertEquals(20, $fooBar->b);
         $this->assertEquals(6, $fooBar->id);
@@ -109,6 +109,13 @@ class EloquentInheritanceTest extends TestCaseWithDatbase{
         $this->assertEquals(12, $fooBar->b);
     }
 
+    public function test_allow_chaining(){
+        $fooBar = BarExtendsFoo::build()->first();
+        $this->assertEquals(1, $fooBar->testEcho(1));
+        $this->assertInstanceOf(BarExtendsFoo::class, $fooBar->where('x','y'));
+        $this->assertEquals($fooBar, $fooBar->where('x','y'));
+        $this->assertEquals($fooBar, $fooBar->where('x','y')->join('x','y'));
+    }
 
     public function test_save(){
         $fooBar = BarExtendsFoo::build()->first();
@@ -129,6 +136,7 @@ class EloquentInheritanceTest extends TestCaseWithDatbase{
 
     public function test_query_find(){
         $fooBar = BarExtendsFoo::build()->findParent(5);
+        $this->assertInstanceOf(BarExtendsFoo::class, $fooBar);
         $this->assertEquals(10, $fooBar->a);
 
         $fooBar = BarExtendsFoo::build()->findChild(6);
@@ -148,7 +156,7 @@ class EloquentInheritanceTest extends TestCaseWithDatbase{
         $this->assertEquals(20, $fooBar->b);
     }
 
-    public function _test_query_get(){
+    public function test_query_get(){
         $collection = BarExtendsFoo::build()->get();
         $this->assertInstanceOf(Illuminate\Database\Eloquent\Collection::class, $collection);
         $this->assertEquals(2, $collection->count());
@@ -162,7 +170,7 @@ class EloquentInheritanceTest extends TestCaseWithDatbase{
     }
 
 
-    public function _test_query_not_found(){
+    public function test_query_not_found(){
         $fooBar = BarExtendsFoo::build()->where('a', 100)->first();
         $this->assertNull($fooBar);
 
@@ -240,11 +248,64 @@ class EloquentInheritanceTest extends TestCaseWithDatbase{
             'id' => 99
         ]);
 
+        $this->seeInDatabase('foo',['a' => 1000]);
+        $this->seeInDatabase('bar',['b' => 2000]);
+
         $fooBar = BarExtendsFoo::build()->find(99);
+
         $this->assertEquals(1000, $fooBar->a);
         $this->assertEquals(2000, $fooBar->b);
         $this->assertEquals(99, $fooBar->child()->id);        
         $this->assertEquals($fooBar->parent()->id, $fooBar->child()->foo_id);
     }
+
+    public function test_delete(){
+        $fooBar = BarExtendsFoo::create([
+            'a' => 50,
+            'b' => 60,
+        ]);
+
+        $this->seeInDatabase('foo',['a' => 50]);
+        $this->seeInDatabase('bar',['b' => 60]);
+
+        $fooBar->delete();
+
+        $this->notSeeInDatabase('foo',['a' => 50]);
+        $this->notSeeInDatabase('bar',['b' => 60]);
+    }
+
+    public function test_update(){
+        $fooBar = BarExtendsFoo::create([
+            'a' => 50,
+            'b' => 60,
+        ]);
+
+        $this->seeInDatabase('foo',['a' => 50]);
+        $this->seeInDatabase('bar',['b' => 60]);
+
+        $fooBar->update([
+            'a' => 150,
+            'b' => 160,
+        ]);
+
+        $this->seeInDatabase('foo',['a' => 150]);
+        $this->seeInDatabase('bar',['b' => 160]);
+        $this->notSeeInDatabase('foo',['a' => 50]);
+        $this->notSeeInDatabase('bar',['b' => 60]);
+    }
+
+    public function test_auto_create_with_any_static_call(){
+        $fooBar = BarExtendsFoo::find(1);
+        $this->assertEquals(1, $fooBar->a);
+        $this->assertEquals(2, $fooBar->b);
+
+        $fooBar = BarExtendsFoo::where('a', 10)->first();
+        $this->assertEquals(10, $fooBar->a);
+        $this->assertEquals(20, $fooBar->b);
+ 
+        $collection = BarExtendsFoo::get();
+        $this->assertInstanceOf(Illuminate\Database\Eloquent\Collection::class, $collection);
+   }
+
 
 }

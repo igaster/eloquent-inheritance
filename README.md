@@ -5,7 +5,7 @@
 [![Codecov](https://img.shields.io/codecov/c/github/igaster/eloquent-inheritance.svg)](https://codecov.io/github/igaster/eloquent-inheritance)
 
 ## Description
-Eloquent Multiple Table Inheritance: Use a One-To-One (or One-To-Many) relation between a parent & child Tables to simulate inheritance Model inheritance.
+Eloquent Multiple Table Inheritance: Use a One-To-One (or One-To-Many) relation between a parent & child Tables to simulate inheritance between Models.
 
 ## Installation:
 
@@ -32,11 +32,9 @@ Schema::create('foo', function (Blueprint $table) {
 // Model Bar inherits Foo.
 Schema::create('bar', function (Blueprint $table) {
     $table->increments('id');
-    $table->integer('foo_id')->nullable();
     $table->integer('b');
+    $table->integer('foo_id')->nullable(); // Foreign Key to Foo
 });
-
-// You may add more models that inherit Foo
 ```
 
 #### Example Models:
@@ -55,12 +53,15 @@ class Bar extends Eloquent
 }
 
 class BarExtendsFoo extends igaster\EloquentInheritance\InheritsEloquent{
+    // Set Parent/Child classes
     public static $parentClass = Foo::class;
     public static $childClass  = Bar::class;
 
+    // You must declare Parent/Child keys explicity:
     public static $parentKeys = ['id','a'];
     public static $childKeys  = ['id','b','foo_id'];
 
+    // Childs Foreign Key (points to Parent)
     public static $childFK  = 'foo_id';
 
     // Add your functions / variables...
@@ -68,30 +69,33 @@ class BarExtendsFoo extends igaster\EloquentInheritance\InheritsEloquent{
 }
 ```
 
-
-####  Example
+####  Usage
 
 ```php
 // Create a composite Model:
-$fooBar = BarExtendsFoo::create([
+$fooBar = BarExtendsFoo::create([ // Creates and Saves Foo & Bar in the DB
     'a' => 1,
     'b' => 2,
 ]);
 
-// Access Attributes
+// Access Attributes:
 $fooBar->a; // = 1 (from Foo model)
 $fooBar->b; // = 2 (from Bar model)
 
-// Call Methods
+// Call Methods:
 $fooBar->fooMethod(); // from Foo Model
 $fooBar->barMethod(); // from Bar Model
 $fooBar->newMethod(); // from self
 
-// Load: Start your queries with BarExtendsFoo::build()
-$fooBar = BarExtendsFoo::build()->find(1);
-$fooBar = BarExtendsFoo::build()->where('a',10)->first();
-$fooBar = BarExtendsFoo::build()->get(); // Collection of BarExtendsFoo 
+// Query as an Eloquent model:
+$fooBar = BarExtendsFoo::find(1);
+$fooBar = BarExtendsFoo::where('a',1)->first();
+$fooBar = BarExtendsFoo::get();     // Collection of BarExtendsFoo 
 
-$fooBar->save();    // Saves Foo + Bar
-$fooBar->delete();  // Deletes Foo + Bar
+$fooBar->save();    // Saves Foo & Bar
+$fooBar->delete();  // Deletes Foo & Bar
+$fooBar->update([   // Updates Foo & Bar
+    'a' => 10,
+    'b' => 20,
+]);
 ```

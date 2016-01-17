@@ -3,6 +3,7 @@
 use igaster\EloquentInheritance\InheritsEloquent;
 
 class BarExtendsFoo extends InheritsEloquent{
+
 	public static $parentClass = \igaster\EloquentInheritance\Tests\App\Foo::class;
 	public static $childClass  = \igaster\EloquentInheritance\Tests\App\Bar::class;
 

@@ -1,6 +1,6 @@
 {
     "name": "igaster/eloquent-inheritance",
-	"description": "Use a One-To-One (or One-To-Many) relation between a parent & child Tables to simulate inheritance Model inheritance",
+	"description": "Use a One-To-One (or One-To-Many) relation between a parent & child Tables to simulate inheritance between Models",
     "keywords": ["laravel-5.x", "table inheritance", "eloquent inheritance", "multiple table inheritance"],
     "license": "MIT",
     "homepage": "https://github.com/igaster/eloquent-inheritance.git",

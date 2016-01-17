@@ -42,8 +42,7 @@ class ModelComposer {
 				return $result;
         
 		}
-
-		throw new \Exception("ModelComposer: Property '$name' does not exists in any model", 1);
+		throw new \Exception(__CLASS__.": Property '$name' does not exists in any model", 1);
 	}
 
 	public function setPropertyValue($name, $value){
@@ -53,7 +52,7 @@ class ModelComposer {
 				return $this;
 			}
 		}
-		throw new \Exception("ModelComposer: Property '$name' does not exists in any model", 1);		
+		throw new \Exception(__CLASS__.": Property '$name' does not exists in any model", 1);		
 	}
 
 	protected static function callObjectMethod($object, $method, $args){
@@ -66,7 +65,7 @@ class ModelComposer {
 	    		return static::callObjectMethod($model, $method, $args);
 			}
 		}
-		throw new \Exception("ModelComposer: Method '$method' does not exists in any model", 1);		
+		throw new \Exception(__CLASS__.": Method '$method' does not exists in any model", 1);		
 	}
 
 	protected function propertyExists($name){
@@ -77,7 +76,6 @@ class ModelComposer {
 		}
 		return false;
 	}
-
 
 	public function __call($method, $args){
 		return $this->callMethod($method, $args);

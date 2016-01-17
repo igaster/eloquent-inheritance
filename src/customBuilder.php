@@ -1,6 +1,5 @@
 <?php namespace igaster\EloquentInheritance;
 
-// use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -11,6 +10,85 @@ class customBuilder {
 	public function __construct(InheritsEloquent $model, Builder $query){
 		$this->query = $query;
 		$this->model = $model;
+	}
+
+	// -----------------------------------------------
+	// Testing Helper Methods
+	// -----------------------------------------------
+
+	public function testEcho($value){
+		return $value;
+	}
+
+	// -----------------------------------------------
+	// Break / Compose models
+	// -----------------------------------------------
+
+	public function createModelsFromQuery($data = []){
+		$parent = $this->getParentTable();
+		$child = $this->getChildTable();
+		
+		$parentValues = [];
+		$childValues = [];
+
+		foreach ($data as $key => $value) {
+			if(strpos($key, $parent) === 0)
+				$parentValues[substr($key, strlen($parent)+1)] = $value;
+
+			if(strpos($key, $child) === 0)
+				$childValues[substr($key, strlen($child)+1)] = $value;
+		}
+
+		$className = get_class($this->model);
+
+		$parent = new $className::$parentClass($parentValues);
+		$parent->exists = true;
+  		$parent->wasRecentlyCreated = true;
+
+		$child = new $className::$childClass($childValues);
+		$child->exists = true;
+  		$child->wasRecentlyCreated = true;
+
+  		$this->model->setHierarcy($parent,$child);
+
+  		return $this->model;
+	}
+
+	public function renameColumns(){
+		$parent = $this->getParentTable();
+		$child = $this->getChildTable();
+		$className = get_class($this->model);
+
+		$keys = [];
+		foreach ($className::$parentKeys as $key)
+			$keys[] = "$parent.$key as $parent.$key";
+
+		foreach ($className::$childKeys as $key)
+			$keys[] = "$child.$key as $child.$key";
+
+		return $keys;
+	}
+
+	// -----------------------------------------------
+	// Get Table Names
+	// -----------------------------------------------
+
+	public function getParentTable(){
+		$className = get_class($this->model);
+		return (new $className::$parentClass)->getTable();
+	}
+
+	public function getChildTable(){
+		$className = get_class($this->model);
+		return (new $className::$childClass)->getTable();
+	}
+
+	// -----------------------------------------------
+	// Enable Chaining queries from Container Object
+	// -----------------------------------------------
+
+	public function allowChaining(){
+		return $this->model;
 	}
 
 	// -----------------------------------------------
@@ -35,8 +113,7 @@ class customBuilder {
 		$data = $this->query->first($this->renameColumns());
 		if(is_null($data)) return null;
 
-		$this->createModelsFromQuery($data);
-		return $this->model;
+		return $this->createModelsFromQuery($data);
 	}
 
 	public function get(){
@@ -45,17 +122,11 @@ class customBuilder {
 		$items = [];
 		foreach ($data as $item) {
 			if(!is_null($item)){
-				$items[] = $this->build()->createModelsFromQuery($item);
+				$items[] = $this->model->build()->createModelsFromQuery($item);
 			} 
 		}
-        return new Collection($items);
+		return new Collection($items);
 	}
-
-	public function save(){
-		parent::save();
-		return $this->model;
-	}
-
 
 	// -----------------------------------------------
 	// Route queryBuilder methods to Builder | Parent ModelComposer
@@ -71,14 +142,10 @@ class customBuilder {
 
 	public function __call($method, $arguments) {
 		if(method_exists($this->query, $method)){
-			return static::callObjectMethod($this->query, $method, $arguments);
+			static::callObjectMethod($this->query, $method, $arguments);
+			return $this;
 		}
 
-
-		if(method_exists($this->model, $method)){
-			return static::callObjectMethod($this->model, $method, $arguments);
-		}
-
-		throw new Exception("Method '$method' not found", 1);
+		throw new \Exception(__CLASS__.": Method '$method' not found", 1);
 	}
 }

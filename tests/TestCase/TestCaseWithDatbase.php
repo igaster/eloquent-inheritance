@@ -43,33 +43,4 @@ class TestCaseWithDatbase extends TestCase
         $this->assertInstanceOf('Illuminate\Database\SQLiteConnection', \DB::connection());
     }
 
-    // -----------------------------------------------
-    //  Added functionality
-    // -----------------------------------------------
-
-    protected function seeInDatabase($table, array $data, $connection = null)
-    {
-        $database = $this->database;
-
-        $count = $database->table($table)->where($data)->count();
-
-        $this->assertGreaterThan(0, $count, sprintf(
-            'Unable to find row in database table [%s] that matched attributes [%s].', $table, json_encode($data)
-        ));
-
-        return $this;
-    }
-
-    protected function notSeeInDatabase($table, array $data, $connection = null)
-    {
-        $database = $this->database;
-
-        $count = $database->table($table)->where($data)->count();
-
-        $this->assertEquals(0, $count, sprintf(
-            'Found unexpected records in database table [%s] that matched attributes [%s].', $table, json_encode($data)
-        ));
-
-        return $this;
-    }
 }    
