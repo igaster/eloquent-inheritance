@@ -64,16 +64,16 @@ class BarExtendsFoo extends igaster\EloquentInheritance\InheritsEloquent{
     // Childs Foreign Key (points to Parent)
     public static $childFK  = 'foo_id';
 
-    // Add your functions / variables...
+    // You can add your functions / variables...
     public function newMethod(){}
 }
 ```
 
-####  Usage
+####  Usage:
 
 ```php
 // Create a composite Model:
-$fooBar = BarExtendsFoo::create([ // Creates and Saves Foo & Bar in the DB
+$fooBar = BarExtendsFoo::create([ // Creates and Saves Foo & Bar in the Database
     'a' => 1,
     'b' => 2,
 ]);
