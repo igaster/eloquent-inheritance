@@ -13,12 +13,14 @@ class InheritsEloquent extends ModelComposer{
 	public static function build(){
 		$instance = new static;
 
-		$parent = $instance->getParentTable();
-		$child = $instance->getChildTable();
+		$parentTable = $instance->getParentTable();
+		$childTable = $instance->getChildTable();
 		$childFK = static::$childFK;
 
-		$instance->query =  new customBuilder($instance, \DB::table($parent)
-					->leftJoin($child, "$parent.id", '=', "$child.$childFK"));
+		$instance->query =  new customBuilder($instance, \DB::table($parentTable)
+					->leftJoin($childTable, "$parentTable.id", '=', "$childTable.$childFK"));
+
+		$instance->setHierarcy(new static::$parentClass, new static::$childClass);
 
 		return $instance;
 	}
