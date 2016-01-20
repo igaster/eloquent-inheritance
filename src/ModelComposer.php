@@ -37,7 +37,7 @@ class ModelComposer {
 			if(isset($model->$name))
 				return($model->$name);
 
-			// Methods as Attributes
+			// Handel mutators: getXxxxxAttribute()
 			if($result = $model->getRelationValue($name))
 				return $result;
         
@@ -64,6 +64,10 @@ class ModelComposer {
 			if(method_exists($model, $method)){
 	    		return static::callObjectMethod($model, $method, $args);
 			}
+			if (method_exists($model, $scope = 'scope'.ucfirst($method))) {
+	    		return static::callObjectMethod($model, $method, $args);
+			    // return $this->callScope($scope, $parameters);
+			}			
 		}
 		throw new \Exception(__CLASS__.": Method '$method' does not exists in any model", 1);		
 	}

@@ -37,4 +37,8 @@ class Foo extends Eloquent
 		$this->mutatedValue = $value;
 	}
 
+	// Test query scopes
+    public function scopeNullScope($query , $parameter) {
+        return $query;
+    }
 }

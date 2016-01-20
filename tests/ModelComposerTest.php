@@ -167,4 +167,7 @@ class ModelComposerTest extends TestCaseWithDatbase
         $this->assertEquals(2,  $foo->z);
     }
 
+    public function test_query_scopes(){
+        $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $this->composer->nullScope('parameter'));
+    }
 }
