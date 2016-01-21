@@ -64,7 +64,7 @@ class BarExtendsFoo extends igaster\EloquentInheritance\InheritsEloquent{
     // Childs Foreign Key (points to Parent)
     public static $childFK  = 'foo_id';
 
-    // You can add your functions / variables...
+    // You can add your functions / variables ...
     public function newMethod(){}
 }
 ```
