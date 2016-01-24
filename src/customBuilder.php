@@ -41,11 +41,23 @@ class customBuilder {
 
 		$className = get_class($this->model);
 
-		$parent = new $className::$parentClass($parentValues);
+		// $parent = new $className::$parentClass($parentValues);
+		// $parent->exists = true;
+		// $parent->wasRecentlyCreated = true;
+
+		$parent = new $className::$parentClass();
+		$parent->setAttributesArray($parentValues);
+        $parent->syncOriginal();
 		$parent->exists = true;
   		$parent->wasRecentlyCreated = true;
 
-		$child = new $className::$childClass($childValues);
+		// $child = new $className::$childClass($childValues);
+		// $child->exists = true;
+		// $child->wasRecentlyCreated = true;
+
+		$child = new $className::$childClass();
+		$child->setAttributesArray($childValues);
+        $child->syncOriginal();
 		$child->exists = true;
   		$child->wasRecentlyCreated = true;
 

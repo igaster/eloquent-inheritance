@@ -26,6 +26,7 @@ class ModelComposerTest extends TestCaseWithDatbase
             $table->increments('id');
             $table->integer('b')->nullable();
             $table->integer('z')->nullable();
+            $table->text('json')->default(json_encode([]));
         });
 
         $this->loadModels();
@@ -169,5 +170,21 @@ class ModelComposerTest extends TestCaseWithDatbase
 
     public function test_query_scopes(){
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Builder::class, $this->composer->nullScope('parameter'));
+    }
+
+    public function test_cast_array(){
+        $this->bar->json = [
+            1=>11,
+            2=>22
+        ];
+
+        $this->bar->save();
+        $composer = new ModelComposer();
+        $composer->addModel($this->foo);
+        $composer->addModel($this->reloadModel($this->bar));
+
+        $this->assertInternalType('array',$this->composer->json);
+        $this->assertEquals(11, $this->composer->json[1]);
+
     }
 }

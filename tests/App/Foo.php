@@ -4,10 +4,11 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class Foo extends Eloquent
 {
+	use \igaster\EloquentInheritance\EloquentInherited;
+
     protected $table = 'foo';
     protected $guarded = [];
 	public $timestamps = false;
-
 
 	// Test Properties
 	
