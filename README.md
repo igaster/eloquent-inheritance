@@ -39,15 +39,21 @@ Schema::create('bar', function (Blueprint $table) {
 
 #### Example Models:
 
+Your models should use the `EloquentInherited` Trait
+
 ```php
 class Foo extends Eloquent
 {
+    use \igaster\EloquentInheritance\EloquentInherited;
+
 	// ...
     public function fooMethod(){}
 }
 
 class Bar extends Eloquent
 {
+    use \igaster\EloquentInheritance\EloquentInherited;
+
 	// ...
     public function barMethod(){}
 }
